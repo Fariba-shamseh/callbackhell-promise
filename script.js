@@ -84,5 +84,28 @@ const getCountrAndNeighbour = function (country) {
     });
   });
 };
-// getCountrAndNeighbour('Portugal');
 getCountrAndNeighbour('usa');
+
+// //...............
+// const request1 = fetch(`https://restcountries.com/v3.1/name/Portugal`);
+// console.log(request1);
+// //...............
+// const getCountryData = function (country) {
+//   fetch(`https://restcountries.com/v3.1/name/${country}`)
+//     .then(function (response) {
+//       return response.json();
+//     })
+//     .then(function (data) {
+//       console.log(data);
+//       renderCountry(data[0]);
+//     });
+// };
+// getCountryData('Portugal');
+
+//Summarization
+const getCountryData = function (country) {
+  fetch(`https://restcountries.com/v3.1/name/${country}`)
+    .then(response => response.json())
+    .then(data => renderCountry(data[0]));
+};
+getCountryData('Portugal');

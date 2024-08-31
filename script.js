@@ -27,118 +27,24 @@ const renderCountry = function (data, className = '') {
   countriesContainer.style.opacity = 1;
 };
 
-const renderError = function (msg) {
-  countriesContainer.insertAdjacentText('beforeend', msg);
-  countriesContainer.style.opacity = 1;
-};
-
-// const getCountryData = function (country) {
-//   const request = new XMLHttpRequest();
-//   request.open('GET', `https://restcountries.com/v3.1/name/${country}`);
-//   request.send();
-//   request.addEventListener('load', function () {
-//     const [data] = JSON.parse(request.responseText); //destructure
-//     console.log(data);
-
-//     const html = `
-//           <article class="country">
-//           <img class="country__img" src="${data.flag}" />
-//           <div class="country__data">
-//             <h3 class="country__name">${data.name}</h3>
-//             <h4 class="country__region">${data.region}</h4>
-//             <p class="country__row"><span>👫</span>${(
-//               +data.population / 1000000
-//             ).toFixed(1)}</p>
-//             <p class="country__row"><span>🗣️</span>${data.languages.por}</p>
-//             <p class="country__row"><span>💰</span>${data.currencies.EUR}</p>
-//           </div>
-//         </article>
-//   `;
-//     countriesContainer.insertAdjacentHTML('beforeend', html);
-//     countriesContainer.style.opacity = 1;
-//   });
-// };
-// getCountryData('Portugal');
-// getCountryData('usa');
-// getCountryData('germany');
-
-const getCountrAndNeighbour = function (country) {
-  //AJAX call country 1
-  const request = new XMLHttpRequest();
-  request.open('GET', `https://restcountries.com/v3.1/name/${country}`);
-  request.send();
-  request.addEventListener('load', function () {
-    const [data] = JSON.parse(request.responseText); //destructure
-    console.log(data);
-
-    //render country
-    renderCountry(data);
-
-    const [neighbour] = data.borders;
-    if (!neighbour) return;
-
-    //AJAX call country 2
-    const request2 = new XMLHttpRequest();
-    request2.open('GET', `https://restcountries.com/v3.1/alpha/${neighbour}`);
-    request2.send();
-    request2.addEventListener('load', function () {
-      const [data2] = JSON.parse(request2.responseText); //destructure
-      console.log(data2);
-      renderCountry(data2, 'neighbour');
-    });
-  });
-};
-// getCountrAndNeighbour('usa');
-
-// //...............
-// const request1 = fetch(`https://restcountries.com/v3.1/name/Portugal`);
-// console.log(request1);
-// //...............
-// const getCountryData = function (country) {
-//   fetch(`https://restcountries.com/v3.1/name/${country}`)
-//     .then(function (response) {
-//       return response.json();
-//     })
-//     .then(function (data) {
-//       console.log(data);
-//       renderCountry(data[0]);
-//     });
-// };
-// getCountryData('Portugal');
-
-//Summarization
-const getJSON = function (url, errorMSG = 'Something went worng') {
-  return fetch(url).then(response => {
-    if (!response.ok) throw new Error(`${errorMSG} (${response.status})`);
-    return response.json();
-  });
-};
-const getCountryData = function (country) {
-  // Country 1
-  getJSON(`https://restcountries.com/v3.1/name/${country}`, 'Country not found')
+const key = '908799934974028841283x8131';
+const whereAMI = function (lat, lng) {
+  fetch(`https://geocode.xyz/${lat},${lng}?json=1=xml&auth=${key}`)
+    .then(res => {
+      // console.log(res);
+      if (!res.ok) throw new Error(`problem with geocofing ${res.status}`);
+      return res.json();
+    })
     .then(data => {
-      renderCountry(data[0]);
-
-      const neighbour = data[0].borders[0];
-      if (!neighbour) throw new Error('No neighbour found!');
-
-      // Country 2
-      return getJSON(
-        `https://restcountries.com/v3.1/alpha/${neighbour}`,
-        'Neighbour not found'
-      );
+      // console.log(data);
+      console.log(`you are in ${data.city},${data.country}`);
+      return fetch(`https://restcountries.com/v3.1/name/${data.country}`);
     })
-    .then(data => renderCountry(data[0], 'neighbour'))
-    .catch(err => {
-      console.error(`${err} ⚡⚡⚡`);
-      renderError(`Something went wrong ⚡⚡ ${err.message}. Try again!`);
+    .then(res => {
+      if (!res.ok) throw new Error(`country not found (${Response.status})`);
+      return res.json();
     })
-    .finally(() => {});
+    .then(data => renderCountry(data[0]))
+    .catch(err => console.log(`${err.message} 🌟`));
 };
-
-btn.addEventListener('click', function () {
-  getCountryData('iran');
-});
-
-// اجرای تابع با یک نام کشور وجود ندارد
-getCountryData('hdshdh');
+whereAMI(19.037, 72.873);

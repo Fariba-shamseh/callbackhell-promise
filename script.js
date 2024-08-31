@@ -107,32 +107,38 @@ const getCountrAndNeighbour = function (country) {
 // getCountryData('Portugal');
 
 //Summarization
+const getJSON = function (url, errorMSG = 'Something went worng') {
+  return fetch(url).then(response => {
+    if (!response.ok) throw new Error(`${errorMSG} (${response.status})`);
+    return response.json();
+  });
+};
 const getCountryData = function (country) {
-  //country 1
-  fetch(`https://restcountries.com/v3.1/name/${country}`)
-    .then(response => response.json())
+  // Country 1
+  getJSON(`https://restcountries.com/v3.1/name/${country}`, 'Country not found')
     .then(data => {
       renderCountry(data[0]);
+
       const neighbour = data[0].borders[0];
-      console.log(neighbour);
-      if (!neighbour) return;
+      if (!neighbour) throw new Error('No neighbour found!');
 
-      //country 2
-      return fetch(`https://restcountries.com/v3.1/alpha/${neighbour}`);
+      // Country 2
+      return getJSON(
+        `https://restcountries.com/v3.1/alpha/${neighbour}`,
+        'Neighbour not found'
+      );
     })
-
-    .then(response => response.json())
     .then(data => renderCountry(data[0], 'neighbour'))
     .catch(err => {
       console.error(`${err} ⚡⚡⚡`);
-      renderError(`something went worng ⚡⚡ ${err.message}.try again!`);
+      renderError(`Something went wrong ⚡⚡ ${err.message}. Try again!`);
     })
     .finally(() => {});
 };
-getCountryData('france');
 
 btn.addEventListener('click', function () {
   getCountryData('iran');
 });
 
-// getCountryData('hdshdh'); //error
+// اجرای تابع با یک نام کشور وجود ندارد
+getCountryData('hdshdh');
